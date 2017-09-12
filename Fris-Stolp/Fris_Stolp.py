@@ -48,7 +48,7 @@ def similarity(searchableSet, comparativeSet, possibleStolp, F, func):
 
 def FRiS_Stolp(distanse_func, A, B):
     func = distanse_func
-    F = 0.2
+    F = 0.5
     while( len(A.unbounded) > 1):
         a = A.unbounded
         b = B.objects()
@@ -67,7 +67,7 @@ def FRiS_Stolp(distanse_func, A, B):
         Выберем столп и сформируем вокруг него кластер (столп - нулевой элемент)
         """
         trueStolp = sorted(zip(s, a), key = lambda x: -x[0])[0][1]
-        claster = sorted(zip(a, [ distanse_func(trueStolp, obj) for obj in a if obj is not trueStolp]), key = lambda x: x[1], reverse = True)
+        claster = list(zip(a, [ distanse_func(trueStolp, obj) for obj in a if obj is not trueStolp]))
         claster = [elem[0] for elem in claster if (1 - elem[1] / (elem[1] + func(Find_nearest(b, elem[0]), elem[0]) ) > F) ]
         claster.insert(0, trueStolp)
 
@@ -78,15 +78,52 @@ def FRiS_Stolp(distanse_func, A, B):
         A.clasters.append([A.unbounded.pop()])
         
     
-   
+import matplotlib.pyplot as plt
+import matplotlib.colors as colors
+np.random.seed(12345)
     
+def normal_test():
+
+    A = Pattern(Point.ManyPoints(np.random.normal(loc = 6, scale = 1, size = 50), np.random.normal(loc = 6, scale = 1, size = 50)))
+    B = Pattern(Point.ManyPoints(np.random.normal(loc = 2, scale = 1, size = 50), np.random.normal(loc = 2, scale = 1, size = 50)))
+
+    FRiS_Stolp(Euclid2, A, B)
+    FRiS_Stolp(Euclid2, B, A)
+
+    PrintPattern(A, "s")
+    PrintPattern(B, "^")
+    plt.show()
 
 
-A = Pattern([Point(1,2), Point(1,3), Point(2,4), Point(4,3), Point(3,3), Point(5, 4.01)])
-B = Pattern([Point(4,3), Point(4,1), Point(5,4), Point(2,3)])
-print(A)
-print(B)
-FRiS_Stolp(Euclid2, A, B)
-FRiS_Stolp(Euclid2, B, A)
-print(A)
-print(B)
+def unif_test():
+    B = Pattern(Point.ManyPoints(np.random.rand(25, 1), np.random.rand(25, 1)))
+    x1 = list(5 + np.random.rand(25, 1))
+    y1 = list(np.random.rand(25, 1))
+    x2 = list(2 + np.random.rand(25, 1))
+    y2 = list(2 + np.random.rand(25, 1))
+    x3 = list(np.random.rand(25, 1))
+    y3 = list(5 + np.random.rand(25, 1))
+
+    temp = Point.ManyPoints(x1+x2+x3, y1+y2+y3)
+    A = Pattern(temp)
+    FRiS_Stolp(Euclid2, A, B)
+    FRiS_Stolp(Euclid2, B, A)
+
+    PrintPattern(A, "s")
+    PrintPattern(B, "^")
+    plt.show()
+
+def PrintPattern(pattern, sign):
+    colors = "bgcmyk"
+    i = 0
+    for elem in pattern.clasters:
+        stolp = elem[0]
+        plt.plot(stolp.x, stolp.y, "r" + sign, ms = 7.0)
+        plt.plot([e.x for e in elem if elem is not stolp], [e.y for e in elem if elem is not stolp], colors[i] + sign)
+        i += 1
+
+
+
+unif_test()
+
+

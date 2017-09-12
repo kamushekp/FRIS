@@ -9,5 +9,8 @@ class Point:
     def __str__(self):
         return hex(id(self)) + " Point ( " + str(self.x) + " : " + str(self.y) + " ) "
 
+    def ManyPoints(A, B):
+        return [Point(float(a), float(b)) for (a,b) in zip(A, B)]
+
 
 
