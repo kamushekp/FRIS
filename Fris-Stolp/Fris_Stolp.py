@@ -16,6 +16,9 @@ def Find_nearest(Set, obj):
                 minObj = elem
     return minObj
 
+def Border (r1, r2):
+    return 1 - r1 / (r1 + r2)
+
 def similarity(searchableSet, comparativeSet, possibleStolp, F, func):
         """
         если searchableSet и comparativeSet разные, значит
@@ -37,10 +40,9 @@ def similarity(searchableSet, comparativeSet, possibleStolp, F, func):
                 r2 = func( Find_nearest(comparativeSet, object), object )
 
                 if searchableSet is comparativeSet:
-                    Fj = 1 - r2 / (r1 + r2)
-                else:
-                    Fj = 1 - r1 / (r1 + r2)
+                    r1, r2 = r2, r1
 
+                Fj = Border(r1, r2)
                 if  Fj > F:
                     property += Fj
 
@@ -48,7 +50,7 @@ def similarity(searchableSet, comparativeSet, possibleStolp, F, func):
 
 def FRiS_Stolp(distanse_func, A, B):
     func = distanse_func
-    F = 0.5
+    F = 0
     while( len(A.unbounded) > 1):
         a = A.unbounded
         b = B.objects()
@@ -67,8 +69,8 @@ def FRiS_Stolp(distanse_func, A, B):
         Выберем столп и сформируем вокруг него кластер (столп - нулевой элемент)
         """
         trueStolp = sorted(zip(s, a), key = lambda x: -x[0])[0][1]
-        claster = list(zip(a, [ distanse_func(trueStolp, obj) for obj in a if obj is not trueStolp]))
-        claster = [elem[0] for elem in claster if (1 - elem[1] / (elem[1] + func(Find_nearest(b, elem[0]), elem[0]) ) > F) ]
+        claster = list(zip(a, [ distanse_func(trueStolp, obj) for obj in a]))
+        claster = [elem[0] for elem in claster if elem[0] is not trueStolp and Border(elem[1], func(Find_nearest(b, elem[0]), elem[0])) > F ]
         claster.insert(0, trueStolp)
 
         A.clasters.append(claster)
@@ -81,6 +83,17 @@ def FRiS_Stolp(distanse_func, A, B):
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 np.random.seed(12345)
+
+def trivial_test():
+    A = Pattern(Point.ManyPoints([1, 1, 2],[1, 2, 1]))
+    B = Pattern(Point.ManyPoints([1, 1, 2], [4, 5, 4]))
+    FRiS_Stolp(Euclid2, A, B)
+    FRiS_Stolp(Euclid2, B, A)
+    PrintPattern(A, "s")
+    PrintPattern(B, "^")
+    print(A)
+    print(B)
+    plt.show()
     
 def normal_test():
 
@@ -92,6 +105,8 @@ def normal_test():
 
     PrintPattern(A, "s")
     PrintPattern(B, "^")
+    print(A)
+    print(B)
     plt.show()
 
 
@@ -108,7 +123,8 @@ def unif_test():
     A = Pattern(temp)
     FRiS_Stolp(Euclid2, A, B)
     FRiS_Stolp(Euclid2, B, A)
-
+    print(A)
+    print(B)
     PrintPattern(A, "s")
     PrintPattern(B, "^")
     plt.show()
@@ -119,7 +135,7 @@ def PrintPattern(pattern, sign):
     for elem in pattern.clasters:
         stolp = elem[0]
         plt.plot(stolp.x, stolp.y, "r" + sign, ms = 7.0)
-        plt.plot([e.x for e in elem if elem is not stolp], [e.y for e in elem if elem is not stolp], colors[i] + sign)
+        plt.plot([e.x for e in elem if elem is not stolp], [e.y for e in elem if elem is not stolp], colors[i % 6] + sign)
         i += 1
 
 
