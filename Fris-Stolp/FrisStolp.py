@@ -68,10 +68,10 @@ def FrisStolp(distanse_func, A, B):
         trueStolp = sorted(zip(s, a), key = lambda x: -x[0])[0][1]
         claster = list(zip(a, [ distanse_func(trueStolp, obj) for obj in a]))
         claster = [elem[0] for elem in claster if elem[0] is not trueStolp and Border(elem[1], func(Find_nearest(b, elem[0], func), elem[0])) > F ]
-        claster.insert(0, trueStolp)
+        claster.insert(0, trueStolp)    #нулевым элементом в кластере будем хранить столп кластера
 
-        A.clasters.append(claster)
+        A.clasters.append(claster)      #занесем кластер в список кластера паттерна и удалим его объекты из общего списка объектов
         A.unbounded = [elem for elem in a if elem not in claster]
 
-    if (A.unbounded):
+    if (A.unbounded):                   #последний элемент - если никуда не добавился, для него отдельный кластер
         A.clasters.append([A.unbounded.pop()])

@@ -25,8 +25,8 @@ def artificialClaster(centerX, centerY, scale, size):
 
 def normal_test():
 
-    A = Pattern(artificialClaster(1, 1, 1, 50))
-    B = Pattern(artificialClaster(7, 7, 1, 50))
+    A = Pattern(artificialClaster(0, 0, 1, 50))
+    B = Pattern(artificialClaster(6, 6, 1, 50))
 
     FrisStolp(Euclid2, A, B)
     FrisStolp(Euclid2, B, A)
