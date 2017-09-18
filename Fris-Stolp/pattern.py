@@ -1,27 +1,35 @@
 class Pattern():
+    """
+    Паттерн, или образ - собранные в силу чего-либо в группу объекты.
+    Для инициализации требуется список объектов, предположительно
+    принадлежащих одному паттерну. Предлагается иметь отдельно 
+    список кластеризованных объектов (например, FRiS функцией),
+    и отдельно список некластеризованных. Так же, для получения
+    просто списка всех объектов данного паттерна есть метод objects
+    """
     def __init__(self, elems):
         self.clasters = []
         self.unbounded = elems
 
     def __repr__(self):
-        cl = ""
+        clasterStr = ""
         for elem in self.clasters:
-            cl+= "[ "
+            clasterStr+= "[ "
             for subElem in elem:
-                cl += str(subElem) + " "
-            cl += (" ]\n")
-        return "\n\nclasters:\n" + cl + "\nnot in clasters: " + "".join([str(e) for e in self.unbounded])
+                clasterStr += str(subElem) + " "
+            clasterStr += (" ]\n")
+        return "\n\nclasters:\n" + clasterStr + "\nnot in clasters: " + "".join([str(e) for e in self.unbounded])
         
     def __str__(self):
         
-        cl = ""
+        clasterStr = ""
         for elem in self.clasters:
-            cl+= "[ "
+            clasterStr+= "[ "
             for subElem in elem:
-                cl += str(subElem) + " "
-            cl += (" ]\n")
+                clasterStr += str(subElem) + " "
+            clasterStr += (" ]\n")
         return "There are " + str(len(self.clasters)) + " different clasters:\n\nclasters:\n"\
-           + cl + "\nnot in clasters: " + "".join([str(e) for e in self.unbounded])
+           + clasterStr + "\nnot in clasters: " + "".join([str(e) for e in self.unbounded])
 
     def objects(self):
         objs = [e for sublist in self.clasters for e in sublist]

@@ -4,7 +4,6 @@ from pattern import Pattern
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
-np.random.seed(12345)
 
 def Euclid2(obj1, obj2):
     return ( (obj1.x - obj2.x)**2 + (obj1.y - obj2.y)**2 )**0.5
@@ -19,11 +18,15 @@ def trivial_test():
     print(A)
     print(B)
     plt.show()
-    
+
+def artificialClaster(centerX, centerY, scale, size):
+    return Point.ManyPoints(np.random.normal(loc = centerX, scale = scale, size = size),\
+       np.random.normal(loc = centerY, scale = scale, size = size))
+
 def normal_test():
 
-    A = Pattern(Point.ManyPoints(np.random.normal(loc = 6, scale = 1, size = 50), np.random.normal(loc = 6, scale = 1, size = 50)))
-    B = Pattern(Point.ManyPoints(np.random.normal(loc = 2, scale = 1, size = 50), np.random.normal(loc = 2, scale = 1, size = 50)))
+    A = Pattern(artificialClaster(1, 1, 1, 50))
+    B = Pattern(artificialClaster(7, 7, 1, 50))
 
     FrisStolp(Euclid2, A, B)
     FrisStolp(Euclid2, B, A)
@@ -60,10 +63,13 @@ def PrintPattern(pattern, sign):
     for elem in pattern.clasters:
         stolp = elem[0]
         plt.plot(stolp.x, stolp.y, "r" + sign, ms = 7.0)
-        plt.plot([e.x for e in elem], [e.y for e in elem], colors[i % 6] + sign)
+        plt.plot([e.x for e in elem[1:]], [e.y for e in elem[1:]], colors[np.random.randint(6)] + sign)
         i += 1
 
+np.random.seed(12346)
 normal_test()
+
+#import tensorflow as tf
 
 
 

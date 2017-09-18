@@ -46,8 +46,8 @@ def similarity(searchableSet, comparativeSet, possibleStolp, F, func):
         return property
 
 def FrisStolp(distanse_func, A, B):
-    func = distanse_func
-    F = 0.5
+    func = distanse_func        #метрика между объектами
+    F = 0.0
     while( len(A.unbounded) > 1):
         a = A.unbounded
         b = B.objects()
@@ -55,7 +55,7 @@ def FrisStolp(distanse_func, A, B):
         defensive = [0] * len(a)
         tolerance = [0] * len(a)
 
-
+        #рассмотрим каждый объект из А в качестве возможного столпа
         for i in range(0, len(a)):
             possibleStolp = a[i]
             defensive[i] = similarity(a, b, possibleStolp, F, func)
