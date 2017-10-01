@@ -1,0 +1,81 @@
+import tensorflow as tf
+
+#для обучающей выборки
+from tensorflow.examples.tutorials.mnist import input_data
+mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
+x = tf.placeholder(tf.float32, shape = [None, 784])
+y_true = tf.placeholder(tf.float32, shape = [None, 10])
+
+def weight_variable(shape):
+  initial = tf.truncated_normal(shape, stddev=0.1)
+  return tf.Variable(initial)
+
+def bias_variable(shape):
+  initial = tf.constant(0.1, shape=shape)
+  return tf.Variable(initial)
+
+def conv2d(x, rfw):
+  return tf.nn.conv2d(x, rfw, strides=[1, 1, 1, 1], padding='SAME')
+
+def max_pool_2x2(x):
+  return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
+                        strides=[1, 2, 2, 1], padding='SAME')
+
+
+receptive_field_1w = weight_variable([5, 5, 1, 32])
+receptive_field_1b = bias_variable([32])
+
+x_image = tf.reshape(x, [-1, 28, 28, 1])
+conv_layer_1 = tf.nn.relu(conv2d(x_image, receptive_field_1w) + receptive_field_1b)
+pool_layer_1 = max_pool_2x2(conv_layer_1)
+
+
+receptive_field_2w = weight_variable([5, 5, 32, 64])
+receptive_field_2b = bias_variable([64])
+
+conv_layer_2 = tf.nn.relu(conv2d(pool_layer_1, receptive_field_2w) + receptive_field_2b)
+pool_layer_2 = max_pool_2x2(conv_layer_2)
+
+#в итоге два раза свернули: 28x28 -> 14x14 -> 7x7, по 64 фичи
+#теперь применим fully-connected слой из 1024 нейронов
+receptive_field_3w = weight_variable([7 * 7 * 64, 1024])
+receptive_field_3b = bias_variable([1024])
+
+#уже не используем пространственную информацию
+pool_layer_2_flat = tf.reshape(pool_layer_2, [-1, 7*7*64])
+fully_connected_layer_1 = tf.nn.relu(tf.matmul(pool_layer_2_flat, receptive_field_3w) + receptive_field_3b)
+
+#placeholder for the probability that a neuron's output is kept during dropout
+#
+keep_prob = tf.placeholder(tf.float32)
+dropout_layer_1 = tf.nn.dropout(fully_connected_layer_1, keep_prob)
+
+#веса и смещения выходного слоя
+receptive_field_3w = weight_variable([1024, 10])
+receptive_field_3b = bias_variable([10])
+
+
+#запускаем сеть
+
+y_hat = tf.matmul(dropout_layer_1, receptive_field_3w) + receptive_field_3b
+
+cross_entropy = tf.reduce_mean(
+    tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=y_hat))
+
+train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+
+correct_prediction = tf.equal(tf.argmax(y_true, 1), tf.argmax(y_hat, 1))
+accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+
+with tf.Session() as sess:
+  sess.run(tf.global_variables_initializer())
+  for i in range(300):
+    batch = mnist.train.next_batch(30)
+    if i % 100 == 0:
+      train_accuracy = accuracy.eval(feed_dict={
+          x: batch[0], y_true: batch[1], keep_prob: 1.0})
+      print('step %d, training accuracy on batch %g' % (i, train_accuracy))
+    train_step.run(feed_dict={x: batch[0], y_true: batch[1], keep_prob: 0.5})
+
+  print('test accuracy %g' % accuracy.eval(feed_dict={
+      x: mnist.test.images, y_true: mnist.test.labels, keep_prob: 1.0}))
